@@ -8,12 +8,16 @@ import javax.imageio.ImageIO;
 
 public class Main
 {
+	private static final boolean DEBUG = false;
+	
 	public static void main(final String[] args)
 	{
 		try
 		{
-			Path path = Paths.get("/Users/Doug/Desktop/test2.urf");
+			Path path = Paths.get("/Users/Doug/Desktop/blackbar.urf");
 			byte[] data = Files.readAllBytes(path);
+			
+			System.out.println("File Length Bytes: " + data.length);
 			
 			//read the header
 			int index = 0;
@@ -49,88 +53,105 @@ public class Main
 			index += 8;
 			
 			//raster data
-			BufferedImage img = new BufferedImage(pageWidth, pageHeight, BufferedImage.TYPE_INT_ARGB);
-			int x = 0;
-			int y = 0;
-			while (index < data.length)
+			final int fillColor = 0xffffffff;
+			
+			int currentPage = 0;
+			while (currentPage < pages)
 			{
-				byte lineRepeatCode = data[index]; index++;
-				byte packBitsCode = data[index]; index++;
+				//create an image for the page
+				BufferedImage img = new BufferedImage(pageWidth, pageHeight, BufferedImage.TYPE_INT_ARGB);
 				
-				if (packBitsCode == -128)
+				int currentLine = 0;
+				while (currentLine < pageHeight)
 				{
-					//FillRestOfLineWithFillByte();
-					while (x < pageWidth)
-					{
-						img.setRGB(x, y, toColor(lineRepeatCode));
-						x++;
-					}
+					//get number of times this line repeats
+					byte lineRepeatCode = data[index]; index++;
 					
-					if (x >= pageWidth)
+					if (DEBUG)
+						System.out.println("Line code: " + hexByte(lineRepeatCode) + " " + lineRepeatCode);
+					int timesToRepeatLine = unsignedToBytes(lineRepeatCode);
+					
+					int x = 0;
+					boolean finishedLine = false;
+					while (!finishedLine)
 					{
-						y++;
-						x = 0;
-					}
-				}
-				else if (packBitsCode >= 0)
-				{
-					// copy single pixel and repeat it n+1 times
-					int n = (packBitsCode) + 1;
-					while (n >= 0)
-					{
-						img.setRGB(x, y, toColor(lineRepeatCode));
-						x++;
-						if (x >= pageWidth)
+						//get packed bits code
+						byte packBitsCode = data[index]; index++;
+						
+						if (DEBUG)
+							System.out.println("Pack bits code: " + hexByte(packBitsCode) + " " + packBitsCode);
+						
+						if (packBitsCode == -128) //0x80
 						{
-							y++;
-							x = 0;
+							//fill rest of line with fill color
+							while (x < pageWidth)
+							{
+								img.setRGB(x, currentLine, fillColor);
+								x++;
+							}
 						}
-						n--;
-					}
-					/*
-					 * int n = ((int)code)+1;
-					uint8_t pixel[pixel_size];
-					ReadData(&pixel, pixel_size);
-					while ( n-- > 0 )
-					{
-						AddPixelToLine( pixel );
-					}
-					 */
-				}
-				else
-				{
-					int n = -(packBitsCode) + 1;
-					while (n >= 0)
-					{
-						img.setRGB(x, y, toColor(lineRepeatCode));
-						lineRepeatCode = data[index]; index++;
-						x++;
-						n--;
-						if (x >= pageWidth)
+						else if (packBitsCode >= 0)
 						{
-							y++;
-							x = 0;
+							//repeat color n times
+							int n = (packBitsCode) + 1;
+							
+							//get the color
+							byte colorByte = data[index]; index++;
+							int color = toColor(colorByte);
+							
+							while (n > 0)
+							{
+								img.setRGB(x, currentLine, color);
+								x++;
+								n--;
+							}
+						}
+						else
+						{
+							//copy next |n| + 1 pixels
+							int n = -(packBitsCode) + 1;
+							while (n > 0)
+							{
+								byte colorByte = data[index]; index++;
+								int color = toColor(colorByte);
+								img.setRGB(x, currentLine, color);
+								x++;
+								n--;
+							}
 						}
 						
-						/*
-						 // copy the following (-n)+1 pixels verbatim
-							int n = (-(int)code)+1;
-							ReadData(linePtr, n * pixel_size);
-						 */
+						//check we're not done with line
+						if (x == pageWidth)
+						{
+							finishedLine = true;
+						}
 					}
+					
+					//repeat finished line x times
+					for (int i = 0; i < timesToRepeatLine; i++)
+					{
+						for (x = 0; x < pageWidth; x++)
+						{
+							img.setRGB(x, currentLine + i + 1, img.getRGB(x, currentLine));
+						}
+					}
+					
+					//increment current line
+					currentLine += timesToRepeatLine + 1;
 				}
 				
-				System.out.println("x: " + x + " y: " + y + " index: " + index);
+				//write to file
+			    File outputfile = new File("/Users/Doug/Desktop/test.png");
+			    ImageIO.write(img, "png", outputfile);
+			    
+			    currentPage++;
 			}
 			
-		    File outputfile = new File("/Users/Doug/Desktop/test.png");
-		    ImageIO.write(img, "png", outputfile);
-		    
 		    System.out.println("Done");
 		}
 		catch (Exception e)
 		{
-			
+			e.printStackTrace();
 		}
 	}
 	
@@ -157,6 +178,25 @@ public class Main
 		  color += clr;
 		  return color;
 	  }
+	  
+	  public static String colorToString(int aColor)
+	  {
+		  int a = (aColor & 0xff000000) >> 24;
+		  int r = (aColor & 0x00ff0000) >> 16;
+		  int g = (aColor & 0x0000ff00) >> 8;
+		  int b = (aColor & 0x000000ff) >> 0;
+		  return "R: " + r + " G: " + g + " B: " + b + " A: " + a;
+	  }
+	  
+	  public static String hexByte(byte n) {
+		    // call toUpperCase() if that's required
+		    return String.format("0x%2x", n);
+		}
+	  
+	  public static String hexInt(int n) {
+		    // call toUpperCase() if that's required
+		    return String.format("0x%8s", Integer.toHexString(n)).replace(' ', '0');
+		}
 	
 	/*
 	 * 
