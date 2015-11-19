@@ -14,7 +14,7 @@ public class Main
 	{
 		try
 		{
-			Path path = Paths.get("/Users/Doug/Desktop/blackbar.urf");
+			Path path = Paths.get("/Users/Doug/Desktop/aaaaaa.urf");
 			byte[] data = Files.readAllBytes(path);
 			
 			System.out.println("File Length Bytes: " + data.length);
