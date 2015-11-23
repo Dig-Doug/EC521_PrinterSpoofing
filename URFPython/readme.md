@@ -90,27 +90,27 @@ Once the line has been decoded, you repeat the process for the next line, contin
 ```
 Hex Data			Type						Description
 FF 					Repeat line	count			Repeat following line 0xff = 255 times
-80 					mPackbits code				Fill rest of line with white
+80 					Packbits code				Fill rest of line with white
 FF 					Same as previous			...
 80 					...							...
 46 					Repeat line count			Repeat following line 0x46 times
-80 					mPackbits code				Fill rest of line with white
+80 					Packbits code				Fill rest of line with white
 01					Repeat line count			Repeat following line 0x01 times 
-7F					mPackbits code				Print following pixel 0x7f + 1 times 
+7F					Packbits code				Print following pixel 0x7f + 1 times 
 FF					Pixel data					
 7F FF				Same as previous			...
 7F FF 				...							...
-61					mPackbits code				Repeat following line 0x61 + 1 times
+61					Packbits code				Repeat following line 0x61 + 1 times
 FF				 	Pixel data
-FB					mPackbits code				Copy the following 6 pixels verbatim
+FB					Packbits code				Copy the following 6 pixels verbatim
 FC D5 C8 67 06 03 	Pixel data
-7F 					mPackbits code				Print following pixel 0x7f + 1 times
+7F 					Packbits code				Print following pixel 0x7f + 1 times
 00 					Pixel data
-05 					mPackbits code				Print following pixel 0x05 + 1 times
+05 					Packbits code				Print following pixel 0x05 + 1 times
 00 					Pixel data
-FD 					mPackbits code
+FD 					Packbits code
 05 25 44 E5 		Pixel data
-80 					mPackbits code				Fill rest of line with white
+80 					Packbits code				Fill rest of line with white
 00 					Repeat line	count			Repeat following line 0x0 times
 7F FF 				...							...
 ...
