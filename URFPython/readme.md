@@ -1,9 +1,9 @@
-###URF File Format
+#URF File Format
 
 ##File Header
 The URF file head begins with the ASCII characters "UNIRAST\0". After these 8 bytes, the rest of header contains basic information about the document, such as number of pages, page width & height, etc.
 
-#Example:
+###Example:
 
 ```
 Hex Data						# of Bytes		Description
@@ -80,7 +80,7 @@ pixel[] decodeLine(aFile, aPageWidth)
 	
 Once the line has been decoded, you repeat the process for the next line, continuing until you've read all the lines of the page.
 
-#Example:
+###Example:
 
 ```
 Hex Data			Type						Description
