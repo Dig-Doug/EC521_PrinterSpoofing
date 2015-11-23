@@ -5,6 +5,7 @@ The URF file head begins with the ASCII characters "UNIRAST\0". After these 8 by
 
 #Example:
 
+```
 Hex Data						# of Bytes		Description
 55 4E 49 52 41 53 54 00			8				"UNIRAST"
 00 00 00 01 					4				Number of Pages
@@ -19,10 +20,12 @@ Hex Data						# of Bytes		Description
 00 00 00 00 00 00 00 00			8				Unknown
 
 						Total:	44
+```
 						
 ##Page Data
 The data for each page is compressed using a scheme similar to the PackBits compression algorithm. In this scheme, page data is specified line by line. Each line is decoded using the following algorithm:
 
+````
 pixel[] decodeLine(aFile, aPageWidth)
 {
 	// Number of times to repeat the following line
@@ -73,11 +76,13 @@ pixel[] decodeLine(aFile, aPageWidth)
 	
 	return line;
 }
+````
 	
 Once the line has been decoded, you repeat the process for the next line, continuing until you've read all the lines of the page.
 
 #Example:
 
+```
 Hex Data			Type						Description
 FF 					Repeat line	count			Repeat following line 0xff = 255 times
 80 					mPackbits code				Fill rest of line with white
@@ -104,3 +109,4 @@ FD 					mPackbits code
 00 					Repeat line	count			Repeat following line 0x0 times
 7F FF 				...							...
 ...
+```
