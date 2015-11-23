@@ -37,13 +37,19 @@ class _FileUtils:
     def char(self):
         """Returns a unsigned char in range [0, 255]"""
         result = 0
-        result += ord(self._file.read(1))
+        val = self._file.read(1);
+        if len(val) != 1:
+            raise Error()
+        result += ord(val)
         return result
 
     def schar(self):
         """Returns a signed char in range [-128, 127]"""
         result = 0
-        result += ord(self._file.read(1))
+        val = self._file.read(1);
+        if len(val) != 1:
+            raise Error()
+        result += ord(val)
         """compute the 2's compliment of int value val"""
         if (result & (1 << (8 - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
             result = result - (1 << 8)
@@ -167,6 +173,8 @@ class _URFPageReader:
         # create png writer
         writer = png.Writer(self.header.pageWidth, self.header.pageHeight)
 
+        print self.input.tell()
+
         # current line in image
         currentLine = 0
         lines = []
@@ -190,6 +198,9 @@ class _URFPageReader:
 
         # finished page, increment current
         self.page += 1
+
+        # idk
+        test = self.input.read(32);
 
         # close output file
         file.close()
