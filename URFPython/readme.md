@@ -25,16 +25,18 @@ Hex Data						# of Bytes		Description
 ##Page Data
 The data for each page is compressed using a scheme similar to the PackBits compression algorithm. In this scheme, page data is specified line by line. Each line is decoded using the following algorithm:
 
-````
-pixel[] decodeLine(aFile, aPageWidth)
+````java
+int[] decodeLine(File aFile, int aPageWidth)
 {
 	// Number of times to repeat the following line
 	repeatLineCount = aFile.readUnsignedByte();
 
 	// pixel data for line
-	pixel[] line ;
+	int[] line = new int[aPageWidth];
+	// index into line
+	int x = 0;
 	// continue until line is filled
-	while (len(line) < aPageWidth)
+	while (x < aPageWidth)
 	{
 		// get packed bits code
 		packBitsCode = aFile.readSignedByte(); // byte in 2s complement
@@ -42,8 +44,11 @@ pixel[] decodeLine(aFile, aPageWidth)
 		if (packBitsCode == -128)
 		{
 			// fill rest of line with fill color
-			while (len(line) < aPageWidth)
-				line += WHITE;
+			while (x < aPageWidth)
+			{
+				line[x] = WHITE;
+				x++;
+			}
 		}
 		else if (packBitsCode >= 0)
 		{
@@ -53,7 +58,7 @@ pixel[] decodeLine(aFile, aPageWidth)
 			n = packBitsCode + 1;
 			while (n > 0)
 			{
-				line += pixel;
+				line[x] = pixel;
 				n--
 			}
 		}
@@ -67,7 +72,7 @@ pixel[] decodeLine(aFile, aPageWidth)
 				// get the next pixel
 				pixel = aFile.readPixel();
 				// add to line
-				line += pixel;
+				line[x] = pixel;
 				// decrement n
 				n -= 1;
 			}
