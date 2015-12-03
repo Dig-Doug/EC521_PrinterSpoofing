@@ -19,7 +19,10 @@ def main(argv=None):
 
     # read document
     reader = URFDocumentReader.URFDocumentReader()
-    reader.read(results.input, results.output)
+    pages = reader.read(results.input)
+
+    for i in range(0, len(pages)):
+        pages[i].saveToPNG(results.output + str(i))
 
 if __name__ == "__main__":
     sys.exit(main())
