@@ -1,4 +1,3 @@
-import png
 import PIL
 from PIL import Image
 
