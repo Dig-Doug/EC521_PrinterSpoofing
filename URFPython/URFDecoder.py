@@ -22,7 +22,7 @@ def main(argv=None):
     pages = reader.read(results.input)
 
     for i in range(0, len(pages)):
-        pages[i].saveToPNG(results.output + str(i))
+        pages[i].saveWithWatermark(results.output + str(i), "/Users/Doug/Desktop/watermark.png")
 
 if __name__ == "__main__":
     sys.exit(main())

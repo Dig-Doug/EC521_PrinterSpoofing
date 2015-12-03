@@ -1,4 +1,6 @@
 import png
+import PIL
+from PIL import Image
 
 class Page:
     def __init__(self, aPageData):
@@ -7,14 +9,25 @@ class Page:
         self.data = aPageData
 
     def saveToPNG(self, aFilePath):
-               # open file as writable bytewise
-        file = open(aFilePath, "wb")
 
-        # create png writer
-        writer = png.Writer(self.width, self.height)
+        im = PIL.Image.new('RGB', (self.width, self.height))
+        pix = im.load()
+        for y in range(0, self.height):
+            for x in range(0, self.width):
+                pix[x, y] = (self.data[y][x*3], self.data[y][x*3 + 1], self.data[y][x*3 + 2])
 
-        # write lines
-        writer.write(file, self.data)
+        im.save(aFilePath, "PNG")
 
-        # close file
-        file.close()
+    def saveWithWatermark(self, aFilePath, aWatermarkFile):
+
+        # save data
+        self.saveToPNG(aFilePath)
+
+        orig = PIL.Image.open(aFilePath)
+        water = PIL.Image.open(aWatermarkFile)
+
+        orig = orig.convert("RGBA")
+        water = water.convert("RGBA")
+
+        new_img = PIL.Image.blend(orig, water, 0.5)
+        new_img.save(aFilePath,"PNG")
