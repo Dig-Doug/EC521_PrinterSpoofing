@@ -17,12 +17,21 @@ def main(argv=None):
     # parse args
     results = parser.parse_args()
 
+    print "Parsing input file..."
+
     # read document
     reader = URFDocumentReader.URFDocumentReader()
     pages = reader.read(results.input)
 
+    print "Finished parsing input file..."
+
+    prefix = results.output
+    if prefix.endswith(".png"):
+        prefix = results.output[:-4]
+
     for i in range(0, len(pages)):
-        pages[i].saveWithWatermark(results.output + str(i), "/Users/Doug/Desktop/watermark.png")
+        pages[i].saveToPNG(prefix + "-" + str(i) + ".png")
+        # pages[i].saveWithWatermark(results.output + str(i), "/Users/Doug/Desktop/watermark.png")
 
 if __name__ == "__main__":
     sys.exit(main())

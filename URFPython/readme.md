@@ -1,7 +1,15 @@
 #URF File Format
+A URF file consists of 3 parts: the file header, the page header, and the page data. Each page has its own page header, so the structure of the file is as follows:
+
+File Header
+Page Header
+Page Data
+Page Header
+Page Data
+etc...
 
 ##File Header
-The URF file head begins with the ASCII characters "UNIRAST\0". After these 8 bytes, the rest of header contains basic information about the document, such as number of pages, page width & height, etc.
+The URF file header consists of two parts. The first part is the ASCII characters "UNIRAST\0". The second part is the number of pages in the file, represented as an int (4 bytes).
 
 ###Example:
 
@@ -9,6 +17,14 @@ The URF file head begins with the ASCII characters "UNIRAST\0". After these 8 by
 Hex Data						# of Bytes		Description
 55 4E 49 52 41 53 54 00			8				"UNIRAST"
 00 00 00 01 					4				Number of Pages
+```
+
+##Page Header
+The data for each page starts with the page header. The page header contains information about the document, such as number of pages, page width & height, etc.
+
+###Example:
+```
+Hex Data						# of Bytes		Description
 08 								1				Number of bits per pixel (8 - Greyscale)
 00 								1				Color space
 01 								1				Duplex (Yes or No)
@@ -19,7 +35,7 @@ Hex Data						# of Bytes		Description
 00 00 01 2C 					4				Page Resolution
 00 00 00 00 00 00 00 00			8				Unknown
 
-						Total:	44
+						Total:	32
 ```
 						
 ##Page Data

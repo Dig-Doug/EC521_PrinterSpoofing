@@ -1,15 +1,12 @@
 import FileUtils
 
-class URFDocumentHeader:
-    """ Header of a URF document
+class URFPageHeader:
+    """ Header of a URF page
     """
 
-    FILE_HEADER = 'UNIRAST'
-
-    def __init__(self, aPageCount, aBitsPerPixel, aColorSpace,
+    def __init__(self, aBitsPerPixel, aColorSpace,
                  aDuplexMode, aPrintQuality, aPageWidth,
                  aPageHeight, aResolution, aFillColor):
-        self.pageCount = aPageCount
         self.bitsPerPixel = aBitsPerPixel
         self.colorSpace = aColorSpace
         self.isDuplex = aDuplexMode
@@ -22,18 +19,8 @@ class URFDocumentHeader:
     @classmethod
     def parse(cls, aFile):
 
-        # read "UNIRAST" from file
-        header = aFile.read(8)
-
-        # check that header is correct
-        if header[0:7] != cls.FILE_HEADER:
-            raise Exception()
-
         # create a reader for simplicity
         reader = FileUtils.FileUtils(aFile)
-
-        # read stuff
-        pageCount = reader.int()
 
         bitsPerPixel = reader.char()
         colorSpace = reader.char()
@@ -52,6 +39,6 @@ class URFDocumentHeader:
 
         fillColor = 0xffffffff
 
-        return URFDocumentHeader(pageCount, bitsPerPixel, colorSpace,
-                                 duplexMode, quality, pageWidth,
-                                 pageHeight, resolution, fillColor)
+        return URFPageHeader(bitsPerPixel, colorSpace,
+                             duplexMode, quality, pageWidth,
+                             pageHeight, resolution, fillColor)
