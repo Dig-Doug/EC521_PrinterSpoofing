@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import dpkt, pcap
+import pcap
 from Packets import PacketReader
 
 def main():

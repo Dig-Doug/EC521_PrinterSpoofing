@@ -28,7 +28,6 @@ class DocumentReconstructor:
                 startIndex = relSeq * 2
                 self.tcp_data = self.tcp_data [:startIndex] + packet_hex + self.tcp_data [startIndex+len(packet_hex):]
             elif relSeq > (len(self.tcp_data) / 2):
-                print "HOW DID WE GET HERE?"
                 self.tcp_data += (relSeq - byteLen) * "  "
                 self.tcp_data += packet_hex
             else:
