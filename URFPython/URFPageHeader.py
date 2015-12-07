@@ -42,3 +42,22 @@ class URFPageHeader:
         return URFPageHeader(bitsPerPixel, colorSpace,
                              duplexMode, quality, pageWidth,
                              pageHeight, resolution, fillColor)
+
+    def encode(self, output_file):
+
+        writer = FileUtils.FileUtils(output_file)
+
+        writer.write_char(self.bitsPerPixel)
+        writer.write_char(self.colorSpace)
+        writer.write_char(self.isDuplex)
+        writer.write_char(self.quality)
+
+        writer.write_int(0)
+        writer.write_int(0)
+
+        writer.write_int(self.pageWidth)
+        writer.write_int(self.pageHeight)
+        writer.write_int(self.resolution)
+
+        writer.write_int(0)
+        writer.write_int(0)

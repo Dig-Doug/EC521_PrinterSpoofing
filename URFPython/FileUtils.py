@@ -30,3 +30,20 @@ class FileUtils:
         if (result & (1 << (8 - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
             result = result - (1 << 8)
         return result
+
+    def write_int(self, val):
+        hex_val = "%0.8X" % val
+        self._file.write(hex_val.decode("hex"))
+
+
+    def write_char(self, val):
+        hex_val = "%0.2X" % val
+        self._file.write(hex_val.decode("hex"))
+
+    def write_schar(self, val):
+
+        if val < 0:
+            hex_val = "%0.2X" % (256 - abs(val))
+            self._file.write(hex_val.decode("hex"))
+        else:
+            self.write_char(val)

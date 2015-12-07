@@ -18,9 +18,9 @@ def get_data(ts, pkt, pc, reader):
 def main():
     opts, args = getopt.getopt(sys.argv[1:], 'i:h')
     name = "en1"
-    #for o, a in opts:
-    #    if o == '-i': name = a
-    #    else: usage()
+    for o, a in opts:
+        if o == '-i': name = a
+        else: usage()
 
     # starts capturing with pypcap library
     pc = pcap.pcap(name, immediate=True)

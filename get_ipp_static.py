@@ -3,6 +3,8 @@
 import pcap
 from Packets import PacketReader
 
+from URFPython import URFDocumentReader
+
 def main():
     name = "printer6.pcapng"
     pc = pcap.pcap(name)

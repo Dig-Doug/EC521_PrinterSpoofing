@@ -5,33 +5,47 @@ import FileUtils
 import PixelUtils
 
 class URFPage:
-    def __init__(self, aPageHeader, aPageData):
+    def __init__(self, aPageHeader, aImage):
         self.header = aPageHeader
-        self.data = aPageData
+        self.image = aImage
 
     def saveToPNG(self, aFilePath):
 
-        im = PIL.Image.new('RGB', (self.header.pageWidth, self.header.pageHeight))
-        pix = im.load()
-        for y in range(0, self.header.pageHeight):
-            for x in range(0, self.header.pageWidth):
-                pix[x, y] = (self.data[y][x*3], self.data[y][x*3 + 1], self.data[y][x*3 + 2])
-
-        im.save(aFilePath, "PNG")
+        self.image.save(aFilePath, "PNG")
 
     def saveWithWatermark(self, aFilePath, aWatermarkFile):
 
-        # save data
-        self.saveToPNG(aFilePath)
-
-        orig = PIL.Image.open(aFilePath)
         water = PIL.Image.open(aWatermarkFile)
 
-        orig = orig.convert("RGBA")
+        orig = self.image.convert("RGBA")
         water = water.convert("RGBA")
 
         new_img = PIL.Image.blend(orig, water, 0.5)
         new_img.save(aFilePath,"PNG")
+
+    def encode(self, output_file):
+
+        self.header.encode(output_file)
+
+        writer = FileUtils.FileUtils(output_file)
+        pix = self.image.load()
+        for y in range(0, self.header.pageHeight):
+            x = 0
+            while x < self.header.pageWidth:
+                left = self.header.pageWidth - x
+                step = 128
+                if left < 128:
+                    step = left
+
+                writer.write_schar(-(step - 1))
+
+                while step > 0:
+                    writer.write_char(pix[x,y][0])
+                    writer.write_char(pix[x,y][1])
+                    writer.write_char(pix[x,y][2])
+                    x += 1
+                    step -= 1
+
 
     @classmethod
     def parsePage(cls, aInputFile):
@@ -42,8 +56,9 @@ class URFPage:
         pixels = PixelUtils.PixelUtils(aInputFile, header.bitsPerPixel, header.colorSpace)
 
         # current line in image
+        im = PIL.Image.new('RGB', (header.pageWidth, header.pageHeight))
+        pix = im.load()
         currentLine = 0
-        lines = []
         while currentLine < header.pageHeight:
             # get number of times to repeat line: + 1 because
             # we want to write the line at least once
@@ -54,13 +69,13 @@ class URFPage:
 
             # write line
             for i in range(0, lineRepeatCount):
-                lines.append(line)
-
-            # increment line index
-            currentLine += lineRepeatCount
+                for x in range(0, len(line) / 3):
+                    pix[x, currentLine] = (line[x*3], line[x*3 + 1], line[x*3 + 2])
+                # increment line index
+                currentLine += 1
 
         # create a page from the data
-        return URFPage(header, lines)
+        return URFPage(header, im)
 
     @classmethod
     def _parseLine(cls, header, reader, pixels):

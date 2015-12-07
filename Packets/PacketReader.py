@@ -3,7 +3,7 @@ import pcap
 import gzip
 import DocumentReconstructor
 from URFPython import URFDocumentReader
-
+from URFPython import URFEncoder
 
 class PacketReader:
 
@@ -14,7 +14,7 @@ class PacketReader:
                pcap.DLT_NULL:dpkt.loopback.Loopback,
                pcap.DLT_EN10MB:dpkt.ethernet.Ethernet }[pc.datalink()]
         self.window = []
-        self.window_size = 4
+        self.window_size = 5
         self.readingDocPackets = False
         self.document_rec = None
         self.file_count = 0
@@ -36,11 +36,16 @@ class PacketReader:
                 self.readingDocPackets = True
 
                 # find the closest POST packet
-                closest = self.window[0]
+                closest = None
+                closestLen = 999999999999
                 for i in self.window:
-                    if i[1].data.data.data.encode("hex")[0:8] == "504f5354":  # "504f5354" == POST in hex
-                        if decodedPkt.ip.tcp.seq - i[1].ip.tcp.seq < decodedPkt.ip.tcp.seq - closest[1].ip.tcp.seq:
+                    data = i[1].data.data.data.encode("hex")
+                    if len(data) >= 8 and data[0:8] == "504f5354":  # "504f5354" == POST in hex
+                        if decodedPkt.ip.tcp.seq - i[1].ip.tcp.seq < closestLen:
                             closest = i
+                            closestLen = decodedPkt.ip.tcp.seq - closest[1].ip.tcp.seq
+
+                print "Header packet: " + closest[1].data.data.data.encode("hex")
 
                 # create a document reconstructor
                 self.document_rec = DocumentReconstructor.DocumentReconstructor(closest[0], closest[1])
@@ -154,3 +159,5 @@ class PacketReader:
 
         # increment file count
         self.file_count += 1
+
+        print "Done with: " + str(self.file_count - 1)
